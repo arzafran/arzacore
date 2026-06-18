@@ -97,6 +97,38 @@
             "value": 1
           }
         ]
+      },
+      {
+        "name": "Color Correction",
+        "id": 35,
+        "type": "list",
+        "enabled": true,
+        "address": "0x90",
+        "persist": true,
+        "writeonly": true,
+        "defaultval": 0,
+        "options": [
+          {
+            "name": "Off",
+            "value": 0
+          },
+          {
+            "name": "Mode 1",
+            "value": 1
+          },
+          {
+            "name": "Mode 2",
+            "value": 2
+          },
+          {
+            "name": "Mode 3",
+            "value": 3
+          },
+          {
+            "name": "Mode 4",
+            "value": 4
+          }
+        ]
       }
     ],
     "messages": []

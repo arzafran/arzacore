@@ -881,6 +881,7 @@ set_global_assignment -name VHDL_FILE ../gba/gba_drawer_mode2.vhd
 set_global_assignment -name VHDL_FILE ../gba/gba_drawer_mode345.vhd
 set_global_assignment -name VHDL_FILE ../gba/gba_drawer_obj.vhd
 set_global_assignment -name VHDL_FILE ../gba/gba_gpu.vhd
+set_global_assignment -name VHDL_FILE ../gba/gba_gpu_colorshade.vhd
 set_global_assignment -name VHDL_FILE ../gba/gba_gpu_drawer.vhd
 set_global_assignment -name VHDL_FILE ../gba/gba_gpu_timing.vhd
 

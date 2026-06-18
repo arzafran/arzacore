@@ -39,6 +39,7 @@ entity gba_top is
       load_state            : in     std_logic;
       maxpixels             : in     std_logic;                    -- limit pixels per line
       specialmodule         : in     std_logic;                    -- 0 = off, 1 = use gamepak GPIO Port at address 0x080000C4..0x080000C8
+      shade_mode            : in     std_logic_vector(2 downto 0); -- 0 = off, 1..4 = LCD color correction modes
       -- solar/tilt/rumble removed to save ALMs (only affects <2% of games)
       savestate_number      : in     integer;
       -- RTC
@@ -734,6 +735,7 @@ begin
       lockspeed            => GBA_lockspeed,
       stable_ff_video      => GBA_stable_ff_video,
       maxpixels            => maxpixels,
+      shade_mode           => shade_mode,
 
       bitmapdrawmode       => bitmapdrawmode,
 

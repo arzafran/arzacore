@@ -1344,6 +1344,7 @@ reg [1:0] ff_mode = 0;    // 0 = Hold, 1 = Toggle, 2 = Disabled
 reg force_rtc = 0;        // 0 = Off, 1 = Force enable RTC/GPIO
 reg [1:0] turbo_mode = 0; // 0 = Disabled, 1 = Turbo A, 2 = Turbo B
 reg ff_video_stable = 1'b1; // 0 = Classic FF, 1 = wait for complete rendered lines
+reg [2:0] shade_mode = 0; // 0 = Off, 1..4 = LCD color correction modes
 
 reg [13:0] reset_counter = 0;
 wire       core_reset = (reset_counter != 0);
@@ -1359,6 +1360,7 @@ always @(posedge clk_74a) begin
         32'h84: force_rtc      <= bridge_wr_data[0];
         32'h88: turbo_mode     <= bridge_wr_data[1:0];
         32'h8C: ff_video_stable <= bridge_wr_data[0];
+        32'h90: shade_mode     <= bridge_wr_data[2:0];
         endcase
     end
 end
@@ -1375,6 +1377,9 @@ synch_3 #(.WIDTH(2)) turbo_mode_sync(turbo_mode, turbo_mode_s, clk_sys);
 
 wire ff_video_stable_s;
 synch_3 ff_video_stable_sync(ff_video_stable, ff_video_stable_s, clk_sys);
+
+wire [2:0] shade_mode_s;
+synch_3 #(.WIDTH(3)) shade_mode_sync(shade_mode, shade_mode_s, clk_sys);
 
 // ============================================================
 // Section 4: Video Output — framebuffer + raster scan
@@ -1591,6 +1596,7 @@ gba_top #(
     .load_state          ( ss_load ),
     .maxpixels           ( quirk_sprite ),
     .specialmodule       ( quirk_gpio | force_rtc_s ),
+    .shade_mode          ( shade_mode_s ),
     // solar/tilt/rumble removed to save ALMs
     .savestate_number    ( 0 ),
     // RTC
