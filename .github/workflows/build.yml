@@ -5,7 +5,10 @@
 # - workflow_dispatch: build a chosen core, or all.
 # - Tag <core>-vX.Y.Z (e.g. nes-v1.0.0): builds that core and publishes a Release.
 #
-# Each core is compiled by scripts/build_core.sh in the raetro/quartus:21.1 image.
+# SNES builds its three variants (main/pal/spc) in parallel, then a package job
+# assembles them into one core zip. Other cores build in a single job.
+# Quartus runs from a GHCR mirror of raetro/quartus:21.1 (faster, no Docker Hub
+# rate limits); mirror it once with the mirror-quartus workflow.
 name: build
 
 on:
@@ -21,12 +24,17 @@ on:
 
 permissions:
   contents: write
+  packages: read
+
+env:
+  QUARTUS_IMAGE: ghcr.io/arzafran/quartus:21.1
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set.outputs.matrix }}
+      cores: ${{ steps.set.outputs.cores }}   # non-snes cores to build (JSON array)
+      snes: ${{ steps.set.outputs.snes }}      # "true"/"false"
     steps:
       - uses: actions/checkout@v5
       - id: filter
@@ -41,54 +49,53 @@ jobs:
             shared: ['scripts/**']
       - id: set
         run: |
-          ALL='["gbc","nes","snes","genesis","gba"]'
+          ALL='["gbc","nes","genesis","gba"]'
           ev='${{ github.event_name }}'
           if [ "$ev" = "workflow_dispatch" ]; then
-            inp='${{ github.event.inputs.core }}'
-            if [ "$inp" = "all" ]; then echo "matrix={\"core\":$ALL}" >> "$GITHUB_OUTPUT"
-            else echo "matrix={\"core\":[\"$inp\"]}" >> "$GITHUB_OUTPUT"; fi
+            case '${{ github.event.inputs.core }}' in
+              all)  echo "cores=$ALL" >>"$GITHUB_OUTPUT"; echo "snes=true"  >>"$GITHUB_OUTPUT" ;;
+              snes) echo "cores=[]"   >>"$GITHUB_OUTPUT"; echo "snes=true"  >>"$GITHUB_OUTPUT" ;;
+              *)    echo 'cores=["${{ github.event.inputs.core }}"]' >>"$GITHUB_OUTPUT"; echo "snes=false" >>"$GITHUB_OUTPUT" ;;
+            esac
             exit 0
           fi
           if [ "${{ startsWith(github.ref, 'refs/tags/') }}" = "true" ]; then
-            echo "matrix={\"core\":[\"${GITHUB_REF_NAME%%-v*}\"]}" >> "$GITHUB_OUTPUT"; exit 0
+            c="${GITHUB_REF_NAME%%-v*}"
+            if [ "$c" = "snes" ]; then echo "cores=[]" >>"$GITHUB_OUTPUT"; echo "snes=true" >>"$GITHUB_OUTPUT"
+            else echo "cores=[\"$c\"]" >>"$GITHUB_OUTPUT"; echo "snes=false" >>"$GITHUB_OUTPUT"; fi
+            exit 0
           fi
           if [ "${{ steps.filter.outputs.shared }}" = "true" ]; then
-            echo "matrix={\"core\":$ALL}" >> "$GITHUB_OUTPUT"; exit 0
+            echo "cores=$ALL" >>"$GITHUB_OUTPUT"; echo "snes=true" >>"$GITHUB_OUTPUT"; exit 0
           fi
           sel=""
           [ "${{ steps.filter.outputs.gbc }}" = "true" ]     && sel="$sel\"gbc\","
           [ "${{ steps.filter.outputs.nes }}" = "true" ]     && sel="$sel\"nes\","
-          [ "${{ steps.filter.outputs.snes }}" = "true" ]    && sel="$sel\"snes\","
           [ "${{ steps.filter.outputs.genesis }}" = "true" ] && sel="$sel\"genesis\","
           [ "${{ steps.filter.outputs.gba }}" = "true" ]     && sel="$sel\"gba\","
-          echo "matrix={\"core\":[${sel%,}]}" >> "$GITHUB_OUTPUT"
+          echo "cores=[${sel%,}]" >>"$GITHUB_OUTPUT"
+          echo "snes=${{ steps.filter.outputs.snes }}" >>"$GITHUB_OUTPUT"
 
   build:
     needs: changes
-    if: needs.changes.outputs.matrix != '{"core":[]}'
+    if: needs.changes.outputs.cores != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
+      matrix:
+        core: ${{ fromJSON(needs.changes.outputs.cores) }}
     steps:
       - uses: actions/checkout@v5
       - name: Free disk space
-        uses: jlumbroso/free-disk-space@v1.3.0
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: false
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with: { tool-cache: false, android: true, dotnet: true, haskell: false, large-packages: false, docker-images: true, swap-storage: false }
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build ${{ matrix.core }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"
-          else VER="${GITHUB_REF_NAME//\//-}"; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
           bash scripts/build_core.sh "${{ matrix.core }}" "${VER:-dev}"
-      - name: Upload core zip
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.core }}
           path: cores/${{ matrix.core }}/_dist/*.zip
@@ -97,3 +104,57 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: cores/${{ matrix.core }}/_dist/*.zip
+
+  build-snes:
+    needs: changes
+    if: needs.changes.outputs.snes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [main, pal, spc]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with: { tool-cache: false, android: true, dotnet: true, haskell: false, large-packages: false, docker-images: true, swap-storage: false }
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build SNES ${{ matrix.variant }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
+          bash scripts/build_snes_variant.sh "${{ matrix.variant }}" "${VER:-dev}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: snes-rev-${{ matrix.variant }}
+          path: cores/snes/pkg/Cores/arzacore.SNES/snes_${{ matrix.variant }}.rev
+
+  package-snes:
+    needs: [changes, build-snes]
+    if: ${{ needs.changes.outputs.snes == 'true' && needs.build-snes.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download variant bitstreams
+        uses: actions/download-artifact@v7
+        with:
+          pattern: snes-rev-*
+          path: snes-revs
+          merge-multiple: true
+      - name: Assemble and package SNES core
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
+          VER="${VER:-dev}"
+          mkdir -p cores/snes/pkg/Cores/arzacore.SNES cores/snes/_dist
+          cp snes-revs/*.rev cores/snes/pkg/Cores/arzacore.SNES/
+          ( cd cores/snes/pkg && zip -qr "$GITHUB_WORKSPACE/cores/snes/_dist/arzacore.SNES_${VER}.zip" Assets Cores Platforms )
+          ls -la cores/snes/_dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: snes
+          path: cores/snes/_dist/*.zip
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: cores/snes/_dist/*.zip

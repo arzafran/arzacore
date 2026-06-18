@@ -8,7 +8,7 @@ CORE="${1:?core required}"
 VER="${2:-dev}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-IMG=raetro/quartus:21.1
+IMG="${QUARTUS_IMAGE:-raetro/quartus:21.1}"
 
 # compile <docker-workdir> <quartus args...>
 compile() { local wd="$1"; shift; docker run --rm -v "$ROOT:/build" -w "/build/$wd" "$IMG" "$@"; }
