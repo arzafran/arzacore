@@ -404,7 +404,7 @@ module MAIN_SNES (
 
       .EXT_RTC(rtc),
 
-      .GG_EN(status[24]),
+      .GG_EN(1'b1)  /* arzacore: cheats not wired; disable so the comparator folds off the CPU read path */,
       .GG_CODE(gg_code),
       .GG_RESET((code_download && ioctl_wr && !ioctl_addr) || cart_download),
       .GG_AVAILABLE(gg_available),
