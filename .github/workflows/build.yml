@@ -140,6 +140,10 @@ jobs:
           path: |
             cores/snes/projects/output_files/*.sta.summary
             cores/snes/projects/output_files/*.fit.summary
+      - name: Timing regression gate
+        run: >
+          python3 scripts/check_snes_timing.py --check ${{ matrix.variant }}
+          cores/snes/projects/output_files/snes_pocket.sta.summary
 
   package-snes:
     needs: [changes, build-snes]

@@ -40,6 +40,8 @@ Note: upstream agg23's own CI is red here — they ship a locally-built bitstrea
 ## CI
 Root `.github/workflows/build.yml`: detects which `cores/<name>/` changed (dorny/paths-filter) and matrix-builds those via `scripts/build_core.sh <core>` (one dispatcher; per-core compile working dir + reverse target + package). Per-core release on tag `<name>-vX.Y.Z`. `workflow_dispatch` input `core` builds one or `all`.
 
+**SNES timing gate**: The SNES core fails setup timing at the pessimistic Slow/85C corner — this is benign; the hardware runs fine. CI enforces a regression gate (not an absolute pass/fail): `scripts/check_snes_timing.py --check <variant>` compares worst-case Setup and Hold slack against per-variant baselines in `cores/snes/timing_baseline.json` (tolerances: setup ±1.0 ns, hold ±0.15 ns to absorb fitter-seed noise). The JTAG TCK domain (`altera_reserved_tck`) is excluded — it is non-functional during Pocket operation. The gate runs after timing reports are uploaded so reports are always captured even when the gate trips. When a timing change is intentional, rebaseline with `python3 scripts/check_snes_timing.py --write-baseline <variant> <sta.summary>` and commit the updated `timing_baseline.json`.
+
 ## Deploy / test on hardware
 `scripts/deploy_to_pocket.sh <core-package-dir>` merges onto the Pocket SD (Tools → USB SD Access; mounts as `/Volumes/Analogue`, exFAT). Behavioral tests (trading, audio, video) need eyes on the Pocket — the device exposes no host control. Save bugs are inspectable via the SD card.
 
