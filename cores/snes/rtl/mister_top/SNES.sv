@@ -145,7 +145,10 @@ module MAIN_SNES (
 
     // Audio
     output wire [15:0] audio_l,
-    output wire [15:0] audio_r
+    output wire [15:0] audio_r,
+
+    // Controller swap (issue #16)
+    input wire joy_swap_enabled
 );
   parameter USE_CX4 = 1'b0;
   parameter USE_SDD1 = 1'b0;
@@ -174,7 +177,8 @@ module MAIN_SNES (
   wire GUN_BTN = status[27];
   wire [1:0] GUN_MODE = lightgun_enabled ? 2'd1 : 0;
   wire [1:0] mouse_mode = status[6:5];
-  wire joy_swap = status[7] | piano;
+  // issue #16: joy_swap driven from joy_swap_enabled port instead of dormant status[7]
+  wire joy_swap = joy_swap_enabled | piano;
 
   wire [6:0] USER_IN = 0;
   wire [6:0] USER_OUT;

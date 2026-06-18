@@ -362,6 +362,9 @@ module core_top (
         32'h100: begin
           multitap_enabled <= bridge_wr_data[0];
         end
+        32'h110: begin
+          joy_swap_enabled <= bridge_wr_data[0];  // issue #16: P1/P2 swap
+        end
         32'h104: begin
           lightgun_enabled <= bridge_wr_data[0];
           lightgun_type    <= bridge_wr_data[1];
@@ -689,6 +692,7 @@ module core_top (
 
   reg use_square_pixels = 0;
   reg blend_enabled = 0;
+  reg joy_swap_enabled = 0;  // issue #16: P1/P2 controller swap
 
   // Settings sync
   wire reset_button_s;
@@ -705,9 +709,10 @@ module core_top (
 
   wire use_square_pixels_s;
   wire blend_enabled_s;
+  wire joy_swap_enabled_s;  // issue #16
 
   synch_3 #(
-      .WIDTH(25)
+      .WIDTH(26)
   ) settings_s (
       {
         reset_button,
@@ -720,7 +725,8 @@ module core_top (
         joystick_deadzone,
         mouse_enabled,
         use_square_pixels,
-        blend_enabled
+        blend_enabled,
+        joy_swap_enabled    // issue #16
       },
       {
         reset_button_s,
@@ -733,7 +739,8 @@ module core_top (
         joystick_deadzone_s,
         mouse_enabled_s,
         use_square_pixels_s,
-        blend_enabled_s
+        blend_enabled_s,
+        joy_swap_enabled_s  // issue #16
       },
       clk_sys_21_48
   );
@@ -773,6 +780,7 @@ module core_top (
       .gsu_turbo_enabled(gsu_turbo_enabled_s),
 
       .multitap_enabled(multitap_enabled_s),
+      .joy_swap_enabled(joy_swap_enabled_s),  // issue #16
       .lightgun_enabled(lightgun_enabled_s),
       .lightgun_type(lightgun_type_s),
       .dpad_aim_speed(dpad_aim_speed_s),
