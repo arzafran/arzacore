@@ -1,0 +1,25 @@
+# Compiled bitstreams — produced by CI, not committed
+*.rbf
+*.rbf_r
+*.rev
+*.sof
+*.pof
+*.jic
+
+# Quartus build outputs / scratch
+output_files/
+db/
+incremental_db/
+greybox_tmp/
+simulation/
+*.qws
+*.rpt
+*.summary
+*.smsg
+*.stp
+*.pin
+*.qdf
+
+# OS
+.DS_Store
+._*

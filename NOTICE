@@ -1,0 +1,32 @@
+arzacore — Analogue Pocket FPGA cores
+=====================================
+
+Each core under cores/ is a GPL fork. arzacore maintains these forks and does not
+upstream changes; upstream attribution is preserved below and in each core's
+LICENSE and README.
+
+cores/gbc — Game Boy Color / Game Boy
+  Fork of budude2/openfpga-GBC, a Pocket port of MiSTer-devel/Gameboy_MiSTer.
+  Authors: budude2 and the Gameboy_MiSTer / MiSTer-devel contributors. GPL.
+
+cores/nes — NES
+  Fork of agg23/openFPGA-NES, a Pocket port of MiSTer-devel/NES_MiSTer.
+  Authors: agg23; Ludvig Strigeus, sorgelig, greyrogue, Kitrinx, paulb-nl, et al. GPL-3.0.
+
+cores/snes — SNES
+  Fork of agg23/openfpga-snes, a Pocket port of MiSTer-devel/SNES_MiSTer.
+  Authors: agg23; srg320 and the MiSTer-devel contributors. GPL-3.0.
+
+cores/genesis — Sega Genesis / Mega Drive
+  Fork of opengateware/openFPGA-Genesis (ericlewis), a Pocket port of fpgagen.
+  Authors: Eric Lewis; Jose Tejada / Jotego (jt12, jt89 — GPL-3); Jorge Cwik (FX68K);
+  Torlus / Gregory Estrade (fpgagen); MiSTer-devel contributors. GPL-3.0.
+  Note: FX68K (Jorge Cwik) carries no explicit license; included per community-distribution norm.
+
+cores/gba — Game Boy Advance
+  Fork of mincer-ray/openfpga-GBA, a Pocket port of MiSTer-devel/GBA_MiSTer.
+  Authors: mincer-ray (Peter De Genaro); Robert Peip / FPGAzumSpass and the
+  MiSTer-devel GBA contributors. GPL-2.0.
+
+The Analogue Pocket APF framework wrapper is © Analogue Enterprises Limited and is
+included under Analogue's developer terms, as in every openFPGA core.

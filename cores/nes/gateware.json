@@ -1,0 +1,35 @@
+{
+    "name": "NES",
+    "displayName": "NES",
+    "description": "Nintendo Entertainment System and Famicom. Nintendo's first home console",
+    "author": "arzacore",
+    "version": "1.0.0",
+    "license": "GPL-3.0-or-later",
+    "repository": "https://github.com/arzafran/arzacore-NES",
+    "keywords": [
+        "ecosystem:gateman"
+    ],
+    "scripts": {
+        "verilator": "echo \"Error: no simulation specified\" && exit 1",
+        "build:pocket": "quartus_sh --flow compile projects/nes_pocket.qpf",
+        "program:pocket": "quartus_pgm -m jtag -c 1 -o \"p;projects/output_files/nes_pocket.sof@1\""
+    },
+    "release": {
+        "folders": {
+            "output_folder": "projects/output_files",
+            "pkg_folder": "pkg/pocket",
+            "meta_folder": "pkg/meta",
+            "stage_folder": "staging",
+            "release_folder": "release"
+        },
+        "target": {
+            "pocket": {
+                "release_file": "{author}.{core}_{version}-{date}"
+            }
+        }
+    },
+    "platforms": {
+        "pocket": "1.3.0"
+    },
+    "modules": {}
+}

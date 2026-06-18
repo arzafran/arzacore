@@ -1,0 +1,36 @@
+{
+  "core": {
+    "magic": "APF_VER_1",
+    "metadata": {
+      "platform_ids": [
+        "gbc"
+      ],
+      "shortname": "GBC",
+      "description": "Game Boy Color (arzacore build)",
+      "author": "arzacore",
+      "url": "https://github.com/arzafran/arzacore-GBC",
+      "version": "1.4.0",
+      "date_release": "2026-04-12"
+    },
+    "framework": {
+      "target_product": "Analogue Pocket",
+      "version_required": "1.1",
+      "sleep_supported": true,
+      "dock": {
+        "supported": true,
+        "analog_output": false
+      },
+      "hardware": {
+        "link_port": true,
+        "cartridge_adapter": "0x41000000"
+      }
+    },
+    "cores": [
+      {
+        "name": "default",
+        "id": 0,
+        "filename": "gbc.rbf_r"
+      }
+    ]
+  }
+}
