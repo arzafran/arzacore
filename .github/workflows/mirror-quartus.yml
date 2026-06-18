@@ -1,0 +1,27 @@
+# One-time (re-runnable) mirror of the Quartus build image to this repo's GHCR.
+# Pulling from ghcr.io (same network as the runners) is faster than Docker Hub
+# and avoids Docker Hub's anonymous pull rate limits. Run via the Actions tab
+# or `gh workflow run mirror-quartus.yml`.
+name: mirror-quartus-image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Mirror raetro/quartus:21.1 -> ghcr.io
+        run: |
+          set -euo pipefail
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker pull raetro/quartus:21.1
+          docker tag raetro/quartus:21.1 "ghcr.io/${OWNER}/quartus:21.1"
+          docker push "ghcr.io/${OWNER}/quartus:21.1"
+          echo "Mirrored to ghcr.io/${OWNER}/quartus:21.1"
