@@ -514,6 +514,8 @@ synch_3               s10 (osnotify_adapter_play, cart_physical_mode, clk_sys);
 logic sgb_en, rumble_en, originalcolors, ff_snd_en, ff_en, sgb_border_en, gba_en, audio_no_pops;
 logic [1:0] tint;
 logic [1:0] mapper_sel_top; // #55: Wisdom Tree / Mani161 mapper override select
+logic [1:0] ff_speed;       // #2: fast-forward speed: 00=2x, 01=4x (default), 1x=Max
+logic       af_a_en, af_b_en; // #4: autofire A / autofire B enables
 
 always_comb begin
   // These settings trigger a reset
@@ -529,6 +531,9 @@ always_comb begin
   sgb_border_en  = run_settings_s[4];
   tint           = run_settings_s[6:5];
   audio_no_pops  = run_settings_s[7];
+  ff_speed       = run_settings_s[9:8];  // #2: bits[9:8] select FF speed (0x100=4x default)
+  af_a_en        = run_settings_s[10];   // #4: bit[10] enables autofire on button A
+  af_b_en        = run_settings_s[11];   // #4: bit[11] enables autofire on button B
 end
 
 mf_pllbase mp1
@@ -1149,6 +1154,31 @@ wire [7:0] joystick_1 = {cont2_key_s[15], cont2_key_s[14], cont2_key_s[5], cont2
 wire [7:0] joystick_2 = {cont3_key_s[15], cont3_key_s[14], cont3_key_s[5], cont3_key_s[4], cont3_key_s[0], cont3_key_s[1], cont3_key_s[2], cont3_key_s[3]};
 wire [7:0] joystick_3 = {cont4_key_s[15], cont4_key_s[14], cont4_key_s[5], cont4_key_s[4], cont4_key_s[0], cont4_key_s[1], cont4_key_s[2], cont4_key_s[3]};
 
+// #4: Autofire (turbo) logic
+// joystick_0 bit layout: [7]=start [6]=select [5]=B [4]=A [3]=up [2]=down [1]=left [0]=right
+// af_toggle runs at ~15 Hz (clk_sys ~32 MHz / 1_066_667 / 2 ≈ 15 Hz).
+// When autofire is enabled for a button the button signal is AND-gated with the
+// toggle so that holding the physical button produces repeated press/release cycles.
+reg [19:0] af_counter;
+reg        af_toggle;
+
+always_ff @(posedge clk_sys) begin
+  if (af_counter == 20'd1_066_666) begin
+    af_counter <= 20'd0;
+    af_toggle  <= ~af_toggle;
+  end else begin
+    af_counter <= af_counter + 20'd1;
+  end
+end
+
+wire [7:0] joystick_0_af = {
+  joystick_0[7],
+  joystick_0[6],
+  (af_b_en && joystick_0[5]) ? af_toggle : joystick_0[5], // B autofire
+  (af_a_en && joystick_0[4]) ? af_toggle : joystick_0[4], // A autofire
+  joystick_0[3:0]
+};
+
 sgb sgb (
   .reset              ( reset | ~loading_done         ),
   .clk_sys            ( clk_sys                       ),
@@ -1157,7 +1187,7 @@ sgb sgb (
   .clk_vid            ( clk_ram                       ),
   .ce_pix             ( ce_pix                        ),
 
-  .joystick_0         ( joystick_0                    ),
+  .joystick_0         ( joystick_0_af                 ), // #4: autofire applied to P1
   .joystick_1         ( joystick_1                    ),
   .joystick_2         ( joystick_2                    ),
   .joystick_3         ( joystick_3                    ),
@@ -1295,6 +1325,7 @@ speedcontrol speedcontrol
   .speedup     ( fast_forward         ),
   .cart_act    ( cart_act             ),
   .DMA_on      ( DMA_on               ),
+  .ff_speed    ( ff_speed             ), // #2: adjustable fast-forward speed
   .ce          ( ce_cpu               ),
   .ce_2x       ( ce_cpu2x             ),
   .refresh     ( sdram_refresh_force  ),

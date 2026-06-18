@@ -16,10 +16,10 @@
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF1000000",
-        "mask":       "0xFFFFFFFD",
+        "address": "0xF1000000",
+        "mask": "0xFFFFFFFD",
         "defaultval": 0,
-        "value":      "0x00000002"
+        "value": "0x00000002"
       },
       {
         "name": "Mapper Override",
@@ -27,13 +27,22 @@
         "type": "list",
         "enabled": true,
         "persist": true,
-        "address":    "0xF1000000",
-        "mask":       "0xFFFFFFF3",
+        "address": "0xF1000000",
+        "mask": "0xFFFFFFF3",
         "defaultval": 0,
         "options": [
-          { "name": "Auto",        "value": "0x00" },
-          { "name": "Wisdom Tree", "value": "0x04" },
-          { "name": "Mani161",     "value": "0x08" }
+          {
+            "name": "Auto",
+            "value": "0x00"
+          },
+          {
+            "name": "Wisdom Tree",
+            "value": "0x04"
+          },
+          {
+            "name": "Mani161",
+            "value": "0x08"
+          }
         ]
       },
       {
@@ -42,10 +51,10 @@
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF2000000",
-        "mask":       "0xFFFFFFFD",
+        "address": "0xF2000000",
+        "mask": "0xFFFFFFFD",
         "defaultval": "0x00000002",
-        "value":      "0x00000002"
+        "value": "0x00000002"
       },
       {
         "name": "Enable Rumble",
@@ -53,10 +62,10 @@
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF2000000",
-        "mask":       "0xFFFFFFFE",
+        "address": "0xF2000000",
+        "mask": "0xFFFFFFFE",
         "defaultval": "0x00000001",
-        "value":      "0x00000001"
+        "value": "0x00000001"
       },
       {
         "name": "Enable FF",
@@ -64,10 +73,10 @@
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF2000000",
-        "mask":       "0xFFFFFFF7",
+        "address": "0xF2000000",
+        "mask": "0xFFFFFFF7",
         "defaultval": "0x00000008",
-        "value":      "0x00000008"
+        "value": "0x00000008"
       },
       {
         "name": "Enable FF Sound",
@@ -75,22 +84,67 @@
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF2000000",
+        "address": "0xF2000000",
         "defaultval": 0,
-        "mask":       "0xFFFFFFFB",
-        "value":      "0x00000004"
+        "mask": "0xFFFFFFFB",
+        "value": "0x00000004"
       },
       {
-
         "name": "No Audio Pops",
         "id": 1006,
         "type": "check",
         "enabled": true,
         "persist": true,
-        "address":    "0xF2000000",
-        "mask":       "0xFFFFFF7F",
+        "address": "0xF2000000",
+        "mask": "0xFFFFFF7F",
         "defaultval": "0x00000080",
-        "value":      "0x00000080"
+        "value": "0x00000080"
+      },
+      {
+        "name": "FF Speed",
+        "id": 1008,
+        "type": "list",
+        "enabled": true,
+        "persist": true,
+        "address": "0xF2000000",
+        "mask": "0xFFFFFCFF",
+        "defaultval": "0x00000100",
+        "options": [
+          {
+            "name": "2x",
+            "value": "0x000"
+          },
+          {
+            "name": "4x",
+            "value": "0x100"
+          },
+          {
+            "name": "Max",
+            "value": "0x200"
+          }
+        ]
+      },
+      {
+        "name": "Autofire A",
+        "id": 1009,
+        "type": "check",
+        "enabled": true,
+        "persist": true,
+        "address": "0xF2000000",
+        "mask": "0xFFFFFBFF",
+        "defaultval": 0,
+        "value": "0x00000400"
+      },
+      {
+        "name": "Autofire B",
+        "id": 1010,
+        "type": "check",
+        "enabled": true,
+        "persist": true,
+        "address": "0xF2000000",
+        "mask": "0xFFFFF7FF",
+        "defaultval": 0,
+        "value": "0x00000800"
       }
     ],
     "messages": []
