@@ -1407,9 +1407,9 @@ video_adapter video_out (
 
 
 // ============================================================
-// Section 5: Audio Output — audio_mixer with IIR filter + DC blocker
-// GBA outputs 16-bit signed PCM stereo; audio_mixer handles
-// filtering, clock-domain crossing, and I2S encoding.
+// Section 5: Audio Output — audio_mixer (DC blocker + mix; IIR low-pass
+// removed to save ALMs, see audio_mixer.sv). GBA outputs 16-bit signed PCM
+// stereo; audio_mixer handles filtering, clock-domain crossing, and I2S encoding.
 // ============================================================
 
 // Audio outputs — driven by gba_top
