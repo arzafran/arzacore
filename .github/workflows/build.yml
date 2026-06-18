@@ -17,6 +17,9 @@ on:
       core:
         description: "core to build (all | gbc | nes | snes | genesis | gba)"
         default: all
+      version:
+        description: "set to publish Release(s), e.g. 1.0.1 (blank = build only). Robust to multi-core release in one run."
+        default: ""
   push:
     branches: [main]
     tags: ["*-v[0-9]+.[0-9]+.[0-9]+*"]
@@ -93,16 +96,17 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build ${{ matrix.core }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; elif [ -n "${{ github.event.inputs.version }}" ]; then VER="${{ github.event.inputs.version }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
           bash scripts/build_core.sh "${{ matrix.core }}" "${VER:-dev}"
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.core }}
           path: cores/${{ matrix.core }}/_dist/*.zip
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.version != '')
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('{0}-v{1}', matrix.core, github.event.inputs.version) || github.ref_name }}
           files: cores/${{ matrix.core }}/_dist/*.zip
 
   build-snes:
@@ -122,7 +126,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build SNES ${{ matrix.variant }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; elif [ -n "${{ github.event.inputs.version }}" ]; then VER="${{ github.event.inputs.version }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
           bash scripts/build_snes_variant.sh "${{ matrix.variant }}" "${VER:-dev}"
       - uses: actions/upload-artifact@v7
         with:
@@ -151,7 +155,7 @@ jobs:
           merge-multiple: true
       - name: Assemble and package SNES core
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then VER="pr-${{ github.event.number }}"; elif [ -n "${{ github.event.inputs.version }}" ]; then VER="${{ github.event.inputs.version }}"; else VER="${GITHUB_REF_NAME//\//-}"; fi
           VER="${VER:-dev}"
           mkdir -p cores/snes/pkg/Cores/arzacore.SNES cores/snes/_dist
           cp snes-revs/*.rev cores/snes/pkg/Cores/arzacore.SNES/
@@ -162,7 +166,8 @@ jobs:
           name: snes
           path: cores/snes/_dist/*.zip
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.version != '')
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('snes-v{0}', github.event.inputs.version) || github.ref_name }}
           files: cores/snes/_dist/*.zip
