@@ -434,7 +434,7 @@ core_bridge_cmd icb (
 reg [11:0] reset_counter 		 = 0;
 reg [15:0] reset_delay			 = 0;
 reg [1:0] cs_cpu_turbo			 = 0;
-reg cs_multitap_enable			 = 0;
+reg [2:0] cs_multitap_enable			 = 0;
 reg cs_menu_pause_enable		 = 0;
 
 // Video 
@@ -467,7 +467,7 @@ always @(posedge clk_74a) begin
         32'h00F00000: cs_audio_filter			<= bridge_wr_data[1:0];
         32'h00A00000: cs_fm_chip                <= bridge_wr_data[0];
         32'h00C00000: cs_cpu_turbo				<= bridge_wr_data[1:0];
-        32'h00000000: cs_multitap_enable 	    <= bridge_wr_data[0];
+        32'h00000000: cs_multitap_enable <= bridge_wr_data[2:0];
         32'h00000010: cs_ar_correction_enable 	<= bridge_wr_data[0];
         32'h00000020: begin
           cs_composite_enable <= bridge_wr_data[0];
@@ -1303,7 +1303,7 @@ system system
 	.SVP_QUIRK(svp_quirk),
 	.SCHAN_QUIRK(schan_quirk),
 
-	// .J3BUT(0),
+	.J3BUT(cs_m30_map_enable),
 	.JOY_1(joystick_0),
 	.JOY_2(joystick_1),
 	.JOY_3(joystick_2),

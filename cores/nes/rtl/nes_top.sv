@@ -679,6 +679,12 @@ module nes_top (
     prev_is_downloading   <= is_downloading;
     prev_palette_download <= palette_download;
 
+    // Re-arm save-RAM clearing when a new download starts, so a game loaded
+    // without a save file does not inherit the previous game's save RAM.
+    if (~prev_is_downloading && is_downloading) begin
+      did_load_save <= 0;
+    end
+
     if (sd_buff_wr) begin
       // Save has been loaded, don't clear save RAM
       did_load_save <= 1;

@@ -57,13 +57,19 @@
       {
         "name": "Multitap",
         "id": 9,
-        "type": "check",
+        "type": "list",
         "enabled": true,
         "persist": true,
         "address": "0x00000000",
         "writeonly": true,
-        "defaultval": 0,
-        "value": 1
+        "defaultval": "0x00000000",
+        "options": [
+          { "value": "0x00000000", "name": "None" },
+          { "value": "0x00000001", "name": "Fourway" },
+          { "value": "0x00000002", "name": "Team Player (port 1)" },
+          { "value": "0x00000003", "name": "Team Player (port 2)" },
+          { "value": "0x00000004", "name": "J-Cart" }
+        ]
       },
       {
         "name": "Lightgun",
