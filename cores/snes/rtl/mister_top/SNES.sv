@@ -148,7 +148,10 @@ module MAIN_SNES (
     output wire [15:0] audio_r,
 
     // Controller swap (issue #16)
-    input wire joy_swap_enabled
+    input wire joy_swap_enabled,
+
+    // Autofire P1 face buttons (issue #10)
+    input wire autofire_enabled
 );
   parameter USE_CX4 = 1'b0;
   parameter USE_SDD1 = 1'b0;
@@ -711,15 +714,38 @@ module MAIN_SNES (
   // select = 10
   // y = 7
   // b = 5
+  // Autofire counter/toggle for P1 face buttons (issue #10)
+  // Clock: clk_sys = clk_sys_21_48 (~21.477 MHz NTSC SNES master clock)
+  // Target: ~15 Hz toggle = half-period of 1/15 s
+  // Counts per toggle = 21_477_000 / (15 * 2) = 715_900 -> rounded to 716_000
+  // Each press/release cycle = 1/15 s; effective button rate = 15 Hz
+  reg [19:0] af_counter = 0;
+  reg        af_toggle  = 0;
+  always @(posedge clk_sys) begin
+    if (af_counter >= 20'd716000) begin
+      af_counter <= 0;
+      af_toggle  <= ~af_toggle;
+    end else begin
+      af_counter <= af_counter + 1'b1;
+    end
+  end
+
+  // Gated P1 face buttons: when autofire_enabled, held button produces
+  // af_toggle pulses at ~15 Hz; when disabled (default=0) pass-through unchanged
+  wire p1_a_af = (autofire_enabled && p1_button_a) ? af_toggle : p1_button_a;
+  wire p1_b_af = (autofire_enabled && p1_button_b) ? af_toggle : p1_button_b;
+  wire p1_x_af = (autofire_enabled && p1_button_x) ? af_toggle : p1_button_x;
+  wire p1_y_af = (autofire_enabled && p1_button_y) ? af_toggle : p1_button_y;
+
   wire [11:0] joy0 = {
     p1_button_start,
     p1_button_select,
     p1_button_trig_r,
     p1_button_trig_l,
-    p1_button_y,
-    p1_button_x,
-    p1_button_b,
-    p1_button_a,
+    p1_y_af,
+    p1_x_af,
+    p1_b_af,
+    p1_a_af,
     p1_dpad_up,
     p1_dpad_down,
     p1_dpad_left,

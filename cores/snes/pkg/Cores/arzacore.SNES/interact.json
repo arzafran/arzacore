@@ -55,6 +55,17 @@
         "value": 1
       },
       {
+        "name": "Autofire A/B/X/Y",
+        "id": 22,
+        "type": "check",
+        "enabled": true,
+        "address": "0x88",
+        "persist": true,
+        "writeonly": true,
+        "defaultval": 0,
+        "value": 1
+      },
+      {
         "name": "Controller Options",
         "id": 30,
         "type": "list",
