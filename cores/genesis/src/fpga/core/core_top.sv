@@ -305,7 +305,7 @@ always @(*) begin
         bridge_rd_data <= 0;
     end
 	32'h00E00000: begin
-        bridge_rd_data <= region_req;
+        bridge_rd_data <= region_req_effective; // issue #22: show effective (post-override) region
     end
     32'hF8xxxxxx: begin
         bridge_rd_data <= cmd_bridge_rd_data;
@@ -450,6 +450,9 @@ reg cs_hifi_pcm_enable	         = 1;
 reg [1:0] cs_audio_filter	 	 = 0;
 reg cs_fm_chip	 		 		 = 0;
 
+// Region override (issue #22/#19)
+reg [1:0] cs_region_override     = 0; // 0=Auto, 1=US, 2=EU, 3=JP
+
 // Input
 reg cs_m30_map_enable            = 0;
 reg lightgun_enabled             = 0;
@@ -485,6 +488,7 @@ always @(posedge clk_74a) begin
         32'h00000100: lightgun_enabled          <= bridge_wr_data[0];
         32'h00000104: show_crosshair            <= bridge_wr_data[0];
         32'h00000108: dpad_aim_speed            <= bridge_wr_data[7:0];
+        32'h00000110: cs_region_override        <= bridge_wr_data[1:0]; // issue #22
       endcase
     end
 end
@@ -624,6 +628,15 @@ always @(posedge clk_sys) begin
 
 	if(old_ready & ~cart_hdr_ready) region_set <= 0;
 end
+
+// issue #22/#19: effective region - auto (header-detected) or manual override
+// cs_region_override: 0=Auto, 1=US (NTSC), 2=EU (PAL), 3=JP (NTSC)
+// region_req encoding: 0=Japan, 1=USA, 2=Europe
+wire [1:0] region_req_effective =
+    (cs_region_override == 2'd1) ? 2'd1 :   // force US
+    (cs_region_override == 2'd2) ? 2'd2 :   // force Europe
+    (cs_region_override == 2'd3) ? 2'd0 :   // force Japan
+    region_req;                              // Auto: header-derived
 
 wire [3:0] hrgn = ioctl_data[3:0] - 4'd7;
 
@@ -1272,7 +1285,7 @@ system system
 	.MCLK(clk_sys),
 
 	.LOADING(cart_download),
-	.EXPORT(|region_req),
+	.EXPORT(|region_req_effective), // issue #22
 	.PAL(0),
 	.SRAM_QUIRK(sram_quirk),
 	.SRAM00_QUIRK(sram00_quirk),

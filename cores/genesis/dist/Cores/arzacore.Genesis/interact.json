@@ -11,6 +11,34 @@
         "value": 1
       },
       {
+        "name": "Region Override",
+        "id": 89,
+        "type": "list",
+        "enabled": true,
+        "persist": true,
+        "writeonly": true,
+        "defaultval": "0x00000000",
+        "address": "0x00000110",
+        "options": [
+          {
+            "value": "0x00000000",
+            "name": "Auto"
+          },
+          {
+            "value": "0x00000001",
+            "name": "United States"
+          },
+          {
+            "value": "0x00000002",
+            "name": "Europe"
+          },
+          {
+            "value": "0x00000003",
+            "name": "Japan"
+          }
+        ]
+      },
+      {
         "name": "Region",
         "id": 99,
         "type": "list",
