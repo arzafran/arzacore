@@ -113,19 +113,15 @@
             "value": 0
           },
           {
-            "name": "Mode 1",
+            "name": "GBA",
             "value": 1
           },
           {
-            "name": "Mode 2",
-            "value": 2
-          },
-          {
-            "name": "Mode 3",
+            "name": "NDS",
             "value": 3
           },
           {
-            "name": "Mode 4",
+            "name": "VBA",
             "value": 4
           }
         ]
