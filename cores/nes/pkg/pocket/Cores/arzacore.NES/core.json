@@ -9,7 +9,7 @@
       "description": "NES (arzacore build)",
       "author": "arzacore",
       "url": "https://github.com/arzafran/arzacore-NES",
-      "version": "1.0.1",
+      "version": "1.0.0",
       "date_release": "2024-09-16"
     },
     "framework": {

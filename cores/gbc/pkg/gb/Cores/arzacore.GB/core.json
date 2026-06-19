@@ -9,7 +9,7 @@
       "description": "Game Boy (arzacore build)",
       "author": "arzacore",
       "url": "https://github.com/arzafran/arzacore-GBC",
-      "version": "1.4.0",
+      "version": "1.0.0",
       "date_release": "2026-04-12"
     },
     "framework": {

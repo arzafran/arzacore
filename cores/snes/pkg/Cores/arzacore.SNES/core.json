@@ -9,7 +9,7 @@
       "description": "SNES (arzacore build)",
       "author": "arzacore",
       "url": "https://github.com/arzafran/arzacore-SNES",
-      "version": "0.4.4",
+      "version": "1.1.0",
       "date_release": "2024-09-16"
     },
     "framework": {
