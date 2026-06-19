@@ -805,7 +805,8 @@ data_loader #(
     .ADDRESS_MASK_UPPER_4   ( 4'h1 ),
     .ADDRESS_SIZE           ( 28 ),
     .OUTPUT_WORD_SIZE       ( 2 ),          // 16-bit output to match SDRAM width
-    .WRITE_MEM_CLOCK_DELAY  ( 20 )          // ~20 clk_sys cycles between writes
+    .WRITE_MEM_CLOCK_DELAY  ( 12 )          // ROM-load speedup: was 20; SDRAM tolerates faster
+                                            // sequential writes. Pocket-verify (corruption risk if too low).
 ) rom_data_loader (
     .clk_74a            ( clk_74a ),
     .clk_memory         ( clk_sys ),
