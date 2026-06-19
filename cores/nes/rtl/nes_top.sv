@@ -170,8 +170,6 @@ module nes_top (
   wire                               [  7:0]                   ppu_dout;
   wire                               [  7:0]                   ppu_din;
 
-  wire                                                         state_loaded;
-
   wire downloading = ioctl_download;
 
   // pause
@@ -486,10 +484,6 @@ module nes_top (
   wire loader_write;
   wire [63:0] loader_flags;
   reg [63:0] mapper_flags;
-  wire fds = (mapper_flags[7:0] == 8'h14);
-  wire nsf = (loader_flags[7:0] == 8'h1F);
-  wire piano = (mapper_flags[30]);
-  wire [3:0] prg_nvram = mapper_flags[34:31];
   wire loader_busy, loader_done, loader_fail;
   wire [9:0] prg_mask, chr_mask;
   assign has_save = mapper_flags[25];
@@ -771,8 +765,6 @@ module nes_top (
   // wire bk_busy = 0;
   // wire bk_loading = 0;
   // wire [8:0] sd_lba = 0;
-  wire OSD_STATUS = 0;
-  wire bk_state = 0;
 
   // always @(posedge clk_ppu_21_47) begin
 
