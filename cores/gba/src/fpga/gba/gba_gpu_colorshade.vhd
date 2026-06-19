@@ -288,16 +288,7 @@ begin
          --shade_linear(2) <=  ( 92 * color_linear_1 + 696 * color_linear_2 + 236 * color_linear_3) / 1024;
          --shade_linear(3) <=  (164 * color_linear_1 +  87 * color_linear_2 + 773 * color_linear_3) / 1024;
          
-         shade_precalc(1, 1) <= 865 * color_linear_1;
-         shade_precalc(2, 1) <=  92 * color_linear_1;
-         shade_precalc(3, 1) <= 164 * color_linear_1;
-         shade_precalc(1, 2) <= 174 * color_linear_2;
-         shade_precalc(2, 2) <= 696 * color_linear_2;
-         shade_precalc(3, 2) <=  87 * color_linear_2;
-         shade_precalc(1, 3) <= 015 * color_linear_3;
-         shade_precalc(2, 3) <= 236 * color_linear_3;
-         shade_precalc(3, 3) <= 773 * color_linear_3;         
-         
+         -- mode-selected color matrix (shade_mult is loaded per shade_mode)
          shade_precalc(1, 1) <= shade_mult(0) * color_linear_1;
          shade_precalc(1, 2) <= shade_mult(1) * color_linear_2;
          shade_precalc(1, 3) <= shade_mult(2) * color_linear_3;
